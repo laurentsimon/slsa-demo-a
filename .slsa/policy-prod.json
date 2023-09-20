@@ -1,0 +1,13 @@
+{
+    "version": 1,
+    "projects": [
+        {
+            "source": {
+                "uri": "git+https://github.com/laurentsimon/slsa-demo-a"
+            },
+            "image": {
+                "uri": "ghcr.io/laurentsimon/slsa-demo-a-echo-server:latest"
+            }
+        }
+    ]
+}
