@@ -1,0 +1,22 @@
+{
+  "subject": [
+    {
+      "name": "index.docker.io/laurentsimon/slsa-demo-a-echo-server",
+      "digest": {
+        "sha256": "9e082163e2a9b55a14d264d23f7eb293a9c51952828b084f9a0111f680252fc0"
+      }
+    }
+  ],
+  "policy": {
+    "uri": "git+https://github.com/laurentsimon/slsa-demo-a/.slsa/policy-prod.json",
+    "ref": "@refs/heads/main",
+    "gitCommit": "abcde",
+    "version": "v1"
+  },
+  "time_verified": "Wed Sep 20 02:18:52 UTC 2023",
+  "deployResult": "ALLOW",
+  "verifier": {
+    "id": "https://github.com/laurentsimon/slsa-policy/.github/workflows/verify-slsa.yml",
+    "ref": "refs/heads/main"
+  }
+}

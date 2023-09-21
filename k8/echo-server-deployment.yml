@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: echo-server-deployment
+  labels:
+    app: echo-server
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: echo-server
+  template:
+    metadata:
+      labels:
+        app: echo-server
+    spec:
+      containers:
+      - name: echo-server
+        #image: ghcr.io/laurentsimon/slsa-demo-a-echo-server@sha256:9e082163e2a9b55a14d264d23f7eb293a9c51952828b084f9a0111f680252fc0
+        image: index.docker.io/laurentsimon/slsa-demo-a-echo-server@sha256:9e082163e2a9b55a14d264d23f7eb293a9c51952828b084f9a0111f680252fc0
+        ports:
+        - containerPort: 8081

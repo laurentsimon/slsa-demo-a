@@ -1,0 +1,63 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: slsa-keyless
+spec:
+  validationFailureAction: Enforce
+  webhookTimeoutSeconds: 30
+  rules:
+    - name: slsa-keyless
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+      # TODO: image must match the SDA's subject
+      verifyImages:
+        # imageReferences sets which images the policy will apply to.
+        # Replace with your image. Wildcard values are supported.
+        # TODO: use * and match the image name in the attestation.
+        - imageReferences:
+            - "*"
+          attestors:
+            # This section declares which attestors are accepted. The subject
+            # below corresponds to the OIDC identity of the container workflow.
+            # The issuer corresponds to the GitHub OIDC server that issues the
+            # identity.
+              - entries:
+                - keyless:
+                    # TODO: use regex and the inline variable of verifier.id.
+                    #subject: "https://github.com/laurentsimon/slsa-policy/.github/workflows/verify-slsa.yml@.*"
+                    #issuer: https://token.actions.githubusercontent.com
+                    rekor:
+                      url: https://rekor.sigstore.dev
+          
+          # TODO: declare an inline variable for the verifier ID.
+          # use it both for subject and verifier.id.
+          # TODO: declare inline variable for as many fields as possible, e.g. verifier.id and policy uri.
+          # This section declares some policy conditions acting on the provenance itself.
+          # attestations:
+          #   - predicateType: https://slsa.dev/verification_summary/v1
+          #     conditions:
+          #       - all:
+          #           # TODO: comment
+          #           - key: "{{ verificationResult }}"
+          #             operator: Equals
+          #             value: "PASSED"
+
+          #           # TODO: match image name.
+
+          #           # TODO: comment
+          #           - key: "{{ policy.uri }}"
+          #             operator: Equals
+          #             value: "git+https://github.com/laurentsimon/slsa-demo-a/.slsa/policy-prod.json@*"
+
+          #           # TODO: verify time
+
+          #           # This condition verifies that the builder is the builder we
+          #           # expect and trust. The following condition can be used
+          #           # unmodified. It verifies that the builder is the container
+          #           # workflow.
+          #           - key: "{{ regex_match('^git+https://github.com/laurentsimon/slsa-policy/.github/workflows/verify-slsa.yml@refs/tags/v[0-9].[0-9].[0-9]$','{{ verifier.id}}') }}"
+          #             operator: Equals
+          #             value: true

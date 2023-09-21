@@ -1,0 +1,37 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: simple-pub
+spec:
+  validationFailureAction: Enforce
+  webhookTimeoutSeconds: 30
+  rules:
+    - name: simple-pub
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+      # TODO: image must match the SDA's subject
+      verifyImages:
+        # imageReferences sets which images the policy will apply to.
+        # Replace with your image. Wildcard values are supported.
+        # TODO: use * and match the image name in the attestation.
+        - imageReferences:
+            - "*"
+          attestors:
+            # This section declares which attestors are accepted. The subject
+            # below corresponds to the OIDC identity of the container workflow.
+            # The issuer corresponds to the GitHub OIDC server that issues the
+            # identity.
+            - entries:
+              - keys:
+                  # NOTE:
+                  # cosign generate-key-pair
+                  # cosign sign -y --key cosign.key ${IMAGE}
+                  # cosign verify ${IMAGE} --key cosign.pub
+                  publicKeys: |-
+                    -----BEGIN PUBLIC KEY-----
+                    MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEhKJsOh7B3CjEVpQb+PHhmujiSoIw
+                    AEiqzqoL/FzI6S4EBt8phXqlcNmOdTAITEP/eZGEDUIieIIjsV/6wSgzpQ==
+                    -----END PUBLIC KEY-----
