@@ -5,8 +5,7 @@ metadata:
   namespace: default
 data:
   # 
-  # Policy information. This path uniquely identifies
-  # the policy that was evaluated.
+  # Policy information. This path uniquely identifies the policy that was evaluated.
   # `policy_uri`:     (Mandatory) The URI of the policy, e.g. 'git+https://github.com/org/repo/.slsa/prod-policy.json'
   # `policy_ref`:     (Optional)  The ref of the policy, e.g. 'refs/heads/main' or 'refs/tags/v1.2.3'
   # `policy_version`: (Optional)  The version of the policy, e.g. 'v1' or 'v1.' We recommend following semantic versioning.
@@ -14,7 +13,7 @@ data:
   #
   policy_uri: "git+https://github.com/laurentsimon/slsa-demo-a/.slsa/policy-prod.json"
   
-  # Verifier information, i.e., the identify of the the entity that cretated the deploy attestation.
+  # Verifier information, i.e., the identify of the entity that created the deploy attestation.
   # `verifier_id`:                (Mandatory) The verifier ID, e.g. 'https://github.com/org/.slsa/workflows/slsa-verifier.yml.'
   # `verifier_ref`:               (Optional)  The ref of the verifier, e.g. 'refs/heads/main' or 'refs/tags/v1.2.3'
   # `verifier_version`:           (Optional)  The version of the policy, e.g. 'v1' or 'v1.' We recommend following semantic versioning.
