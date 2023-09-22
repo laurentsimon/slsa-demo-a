@@ -13,9 +13,14 @@ spec:
               kinds:
                 - Pod
       context:
-        - name: configuration
+        - name: organization
           configMap:
-            name: configuration
+            name: organization
+            namespace: default
+        # TODO: this should be verified dynamically with multiple teams.
+        - name: team
+          configMap:
+            name: team
             namespace: default
 
       # TODO: image must match the SDA's subject
@@ -26,14 +31,14 @@ spec:
         - imageReferences:
             - "*"
           attestations:
-            - predicateType: "https://slsa.dev/deploy/v1?no_policy_version"
+            - predicateType: "https://slsa.dev/deploy/v1?draft1"
               attestors:
               - entries:
                 # - keyless:
-                #     subject: "{{ verifier_id }}@{{ verifier_ref }}"
-                #     issuer: "{{ verifier_sigstore_issuer }}"
+                #     subject: "{{ id }}@{{ ref }}"
+                #     issuer: "{{ sigstore_issuer }}"
                 #     rekor:
-                #       url: "{{ verifier_sigstore_rekor_url }}"
+                #       url: "{{ sigstore_rekor_url }}"
                 - keys:
                     # NOTE:
                     # cosign generate-key-pair
@@ -46,9 +51,9 @@ spec:
                               AEiqzqoL/FzI6S4EBt8phXqlcNmOdTAITEP/eZGEDUIieIIjsV/6wSgzpQ==
                               -----END PUBLIC KEY-----
                       
-              # TODO: Use configMap.
               conditions:
                 - all:
+                  # Compulsory: verify the result.
                   - key: "{{ deployResult }}"
                     operator: Equals
                     value: "ALLOW"
@@ -69,20 +74,20 @@ spec:
                   # Compulsory: Verify the policy uri.
                   - key: "{{ policy.uri }}"
                     operator: Equals
-                    value: "{{ configuration.data.policy_uri }}"
-                    message: "expected {{ configuration.data.policy_uri }}, got {{ policy.uri }}"
+                    value: "{{ team.data.uri }}"
+                    message: "expected {{ team.data.uri }}, got {{ policy.uri }}"
 
                   # Optional: Verify policy version.
                   - key: "{{ policy.version || '' }}"
                     operator: Equals
-                    value: "{{ configuration.data.policy_version || '*' }}"
-                    message: "expected {{ configuration.data.policy_version || '(any)' }}, got {{ policy.version || '(null)' }}"
+                    value: "{{ team.data.version || '*' }}"
+                    message: "expected {{ team.data.version || '(any)' }}, got {{ policy.version || '(null)' }}"
 
                   # Optional: Verify policy ref.
                   - key: "{{ policy.ref || '' }}"
                     operator: Equals
-                    value: "{{ configuration.data.policy_ref || '*' }}"
-                    message: "expected {{ configuration.data.policy_ref || '(any)' }}, got {{ policy.ref || '(null)' }}"
+                    value: "{{ team.data.ref || '*' }}"
+                    message: "expected {{ team.data.ref || '(any)' }}, got {{ policy.ref || '(null)' }}"
 
                   # TODO: verify time
                   # https://kyverno.io/blog/2023/02/19/new-time-related-jmespath-filters-in-kyverno/
@@ -91,11 +96,11 @@ spec:
                   # Compulsory: Verify verifier id in attestation.
                   - key: "{{ verifier.id }}"
                     operator: Equals
-                    value: "{{ configuration.data.verifier_id }}"
-                    message: "expected {{ configuration.data.verifier_id }}, got {{ verifier.id }}"
+                    value: "{{ organization.data.id }}"
+                    message: "expected {{ organization.data.id }}, got {{ verifier.id }}"
 
                   # Optional: Verify verifier ref in attestation.
                   - key: "{{ verifier.ref || '' }}"
                     operator: Equals
-                    value: "{{ configuration.data.verifier_ref || '*' }}"
-                    message: "expected {{ configuration.data.verifier_ref || '(any)' }}, got {{ verifier.ref || '(null)' }}"
+                    value: "{{ organization.data.ref || '*' }}"
+                    message: "expected {{ organization.data.ref || '(any)' }}, got {{ verifier.ref || '(null)' }}"

@@ -11,14 +11,23 @@ deploy_policy() {
         kubectl delete -f k8/"${deloyment_name}".yml
     fi
 
-    result=$(kubectl get configmaps 2>&1 | grep "configuration" || true)
+    result=$(kubectl get configmaps 2>&1 | grep "organization" || true)
     if [[ "${result}" != "" ]]; then
         # Delete the delpoyment.
         kubectl delete -f kyverno/policy-vsa-configuration.yml
     fi
 
-    # Apply the config map.
+    result=$(kubectl get configmaps 2>&1 | grep "team" || true)
+    if [[ "${result}" != "" ]]; then
+        # Delete the delpoyment.
+        kubectl delete -f kyverno/policy-vsa-repository1.yml
+    fi
+
+    # Apply the org config map.
     kubectl apply -f kyverno/policy-vsa-configuration.yml
+
+     # Apply the repo config map.
+    kubectl apply -f kyverno/policy-vsa-repository1.yml
 
     # Apply the policy.
     kubectl apply -f kyverno/"${policy_name}".yml

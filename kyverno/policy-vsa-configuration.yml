@@ -1,26 +1,25 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: configuration
+  # NOTE: This is a generic name that is unique across the cluster.
+  # This value MUST not be changed, as it's used by the ClusterPolicy implementation.
+  name: organization
   namespace: default
 data:
-  # 
-  # Policy information. This path uniquely identifies the policy that was evaluated.
-  # `policy_uri`:     (Mandatory) The URI of the policy, e.g. 'git+https://github.com/org/repo/.slsa/prod-policy.json'
-  # `policy_ref`:     (Optional)  The ref of the policy, e.g. 'refs/heads/main' or 'refs/tags/v1.2.3'
-  # `policy_version`: (Optional)  The version of the policy, e.g. 'v1' or 'v1.' We recommend following semantic versioning.
-  #                   Use https://kyverno.io/docs/writing-policies/jmespath/#semver_compare if needed.
+  # TODO: need a org-wide policy and a team policy. team policy only needs the container image?
+
   #
-  policy_uri: "git+https://github.com/laurentsimon/slsa-demo-a/.slsa/policy-prod.json"
-  
+  # The format version of this configuraiton file.
+  format: "v1"
+
   # Verifier information, i.e., the identify of the entity that created the deploy attestation.
-  # `verifier_id`:                (Mandatory) The verifier ID, e.g. 'https://github.com/org/.slsa/workflows/slsa-verifier.yml.'
-  # `verifier_ref`:               (Optional)  The ref of the verifier, e.g. 'refs/heads/main' or 'refs/tags/v1.2.3'
-  # `verifier_version`:           (Optional)  The version of the policy, e.g. 'v1' or 'v1.' We recommend following semantic versioning.
-  #                               Use https://kyverno.io/docs/writing-policies/jmespath/#semver_compare if needed.
-  # `verifier_sigstore_issuer`:   (Mandatory)  The Sigstore issuer.
-  # `verifier_sigstore_rekor_url`:(Mandatory)  The Sigstore's rekor URL.
+  # `id`:                (Mandatory)  The verifier ID, e.g. 'https://github.com/org/.slsa/workflows/slsa-verifier.yml.'
+  # `ref`:               (Optional)   The ref of the verifier, e.g. 'refs/heads/main' or 'refs/tags/v1.2.3'
+  # `version`:           (Optional)   The version of the policy, e.g. We recommend following semantic versioning.
+  #                                   Use https://kyverno.io/docs/writing-policies/jmespath/#semver_compare if needed.
+  # `sigstore_issuer`:   (Mandatory)  The Sigstore issuer.
+  # `sigstore_rekor_url`:(Mandatory)  The Sigstore's rekor URL.
   #
-  verifier_id: "https://github.com/laurentsimon/slsa-policy/.github/workflows/verify-slsa.yml"
-  verifier_sigstore_issuer: "https://token.actions.githubusercontent.com"
-  verifier_sigstore_rekor_url: "https://rekor.sigstore.dev"
+  id: "https://github.com/laurentsimon/slsa-policy/.github/workflows/verify-slsa.yml"
+  sigstore_issuer: "https://token.actions.githubusercontent.com"
+  sigstore_rekor_url: "https://rekor.sigstore.dev"

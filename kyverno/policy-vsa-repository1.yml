@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: team
+  namespace: default
+data:
+  #
+  # The format version of this file.
+  format: "v1"
+
+  # 
+  # Policy information. This path uniquely identifies the policy that was evaluated.
+  # `uri`:     (Mandatory) The URI of the policy, e.g. 'git+https://github.com/org/repo/.slsa/prod-policy.json'
+  # `ref`:     (Optional)  The ref of the policy, e.g. 'refs/heads/main' or 'refs/tags/v1.2.3'
+  # `version`: (Optional)  The version of the policy. We recommend following semantic versioning.
+  #                        Use https://kyverno.io/docs/writing-policies/jmespath/#semver_compare if needed.
+  #
+  uri: "git+https://github.com/laurentsimon/slsa-demo-a/.slsa/policy-prod.json"
