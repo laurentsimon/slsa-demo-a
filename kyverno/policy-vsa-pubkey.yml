@@ -26,24 +26,26 @@ spec:
         - imageReferences:
             - "*"
           attestations:
-            - predicateType: "https://slsa.dev/deploy/v1?draft"
+            - predicateType: "https://slsa.dev/deploy/v1?no_policy_version"
               attestors:
               - entries:
                 # - keyless:
                 #     subject: "{{ verifier_id }}@{{ verifier_ref }}"
-                #     issuer: "{{ sigstore_issuer }}"
+                #     issuer: "{{ verifier_sigstore_issuer }}"
                 #     rekor:
-                #       url: https://rekor.sigstore.dev
+                #       url: "{{ verifier_sigstore_rekor_url }}"
                 - keys:
                     # NOTE:
                     # cosign generate-key-pair
                     # cosign attest --key cosign.key --yes --type https://slsa.dev/deploy/v1 --predicate attestations/sda.json ${IMAGE}
-                    # cosign verify-attestation ${IMAGE} --key cosign.pub --type https://slsa.dev/verification_summary/v1
+                    # cosign verify-attestation ${IMAGE} --key cosign.pub --type https://slsa.dev/deploy/v1
+                    # WARNING: using config map does _not_ work.
                     publicKeys: |-
-                      -----BEGIN PUBLIC KEY-----
-                      MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEhKJsOh7B3CjEVpQb+PHhmujiSoIw
-                      AEiqzqoL/FzI6S4EBt8phXqlcNmOdTAITEP/eZGEDUIieIIjsV/6wSgzpQ==
-                      -----END PUBLIC KEY-----
+                              -----BEGIN PUBLIC KEY-----
+                              MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEhKJsOh7B3CjEVpQb+PHhmujiSoIw
+                              AEiqzqoL/FzI6S4EBt8phXqlcNmOdTAITEP/eZGEDUIieIIjsV/6wSgzpQ==
+                              -----END PUBLIC KEY-----
+                      
               # TODO: Use configMap.
               conditions:
                 - all:
@@ -52,46 +54,48 @@ spec:
                     value: "ALLOW"
                     message: "expected ALLOW, got {{ deployResult }}"
                     
-                  # Verify the image name in the attestation's provenance.
+                  # Compulsory: Verify the image name in the attestation's provenance.
                   # TODO: Patch kyverno to be able to reference the subject name.
-                  # To figure out the request info, enable --dumpPayload=true and --v=6 for kyverno-admission-controller at install. 
-                  - key: "{{ subject[0].name }}"
+                  # To figure out the request info, enable --dumpPayload=true and --v=6 for kyverno-admission-controller at install.
+                  # Q: Why do we duplicate subject and rsourceUri
+                  #- key: "{{ subject[0].name }}"
+                  - key: "{{ resourceUri }}"
                     operator: Equals
                     value: "{{ image.registry }}/{{ image.path }}"
-                    message: "expected {{ image.registry }}/{{ image.path }}, got {{ subject[0].name }}"
+                    message: "expected {{ image.registry }}/{{ image.path }}, got {{ resourceUri }}"
 
                   # NOTE: image digest is verified by Kyverno.
 
-                  # Verify the policy uri.
+                  # Compulsory: Verify the policy uri.
                   - key: "{{ policy.uri }}"
                     operator: Equals
                     value: "{{ configuration.data.policy_uri }}"
                     message: "expected {{ configuration.data.policy_uri }}, got {{ policy.uri }}"
 
-                  # Verify policy version if present.
-                  - key: "{{ policy.version }}"
+                  # Optional: Verify policy version.
+                  - key: "{{ policy.version || '' }}"
                     operator: Equals
-                    value: "{{ configuration.data.policy_version }}"
-                    message: "expected {{ configuration.data.policy_version }}, got {{ policy.version }}"
+                    value: "{{ configuration.data.policy_version || '*' }}"
+                    message: "expected {{ configuration.data.policy_version || '(any)' }}, got {{ policy.version || '(null)' }}"
 
-                  # Verify policy ref.
-                  - key: "{{ policy.ref }}"
+                  # Optional: Verify policy ref.
+                  - key: "{{ policy.ref || '' }}"
                     operator: Equals
-                    value: "{{ configuration.data.policy_ref }}"
-                    message: "expected {{ configuration.data.policy_ref }}, got {{ policy.ref }}"
+                    value: "{{ configuration.data.policy_ref || '*' }}"
+                    message: "expected {{ configuration.data.policy_ref || '(any)' }}, got {{ policy.ref || '(null)' }}"
 
                   # TODO: verify time
                   # https://kyverno.io/blog/2023/02/19/new-time-related-jmespath-filters-in-kyverno/
                   # https://main.kyverno.io/docs/writing-policies/jmespath/
 
-                  # Verify verifier id in attestation.
+                  # Compulsory: Verify verifier id in attestation.
                   - key: "{{ verifier.id }}"
                     operator: Equals
                     value: "{{ configuration.data.verifier_id }}"
                     message: "expected {{ configuration.data.verifier_id }}, got {{ verifier.id }}"
 
-                  # verify verifier ref in attestation.
-                  - key: "{{ verifier.ref }}"
+                  # Optional: Verify verifier ref in attestation.
+                  - key: "{{ verifier.ref || '' }}"
                     operator: Equals
-                    value: "{{ configuration.data.verifier_ref }}"
-                    message: "expected {{ configuration.data.verifier_ref }}, got {{ verifier.ref }}"
+                    value: "{{ configuration.data.verifier_ref || '*' }}"
+                    message: "expected {{ configuration.data.verifier_ref || '(any)' }}, got {{ verifier.ref || '(null)' }}"

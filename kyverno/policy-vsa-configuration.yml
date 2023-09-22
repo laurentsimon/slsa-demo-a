@@ -4,10 +4,24 @@ metadata:
   name: configuration
   namespace: default
 data:
+  # 
+  # Policy information. This path uniquely identifies
+  # the policy that was evaluated.
+  # `policy_uri`:     (Mandatory) The URI of the policy, e.g. 'git+https://github.com/org/repo/.slsa/prod-policy.json'
+  # `policy_ref`:     (Optional)  The ref of the policy, e.g. 'refs/heads/main' or 'refs/tags/v1.2.3'
+  # `policy_version`: (Optional)  The version of the policy, e.g. 'v1' or 'v1.' We recommend following semantic versioning.
+  #                   Use https://kyverno.io/docs/writing-policies/jmespath/#semver_compare if needed.
+  #
   policy_uri: "git+https://github.com/laurentsimon/slsa-demo-a/.slsa/policy-prod.json"
-  policy_ref: "*"
-  policy_version: "v1"
+  
+  # Verifier information, i.e., the identify of the the entity that cretated the deploy attestation.
+  # `verifier_id`:                (Mandatory) The verifier ID, e.g. 'https://github.com/org/.slsa/workflows/slsa-verifier.yml.'
+  # `verifier_ref`:               (Optional)  The ref of the verifier, e.g. 'refs/heads/main' or 'refs/tags/v1.2.3'
+  # `verifier_version`:           (Optional)  The version of the policy, e.g. 'v1' or 'v1.' We recommend following semantic versioning.
+  #                               Use https://kyverno.io/docs/writing-policies/jmespath/#semver_compare if needed.
+  # `verifier_sigstore_issuer`:   (Mandatory)  The Sigstore issuer.
+  # `verifier_sigstore_rekor_url`:(Mandatory)  The Sigstore's rekor URL.
+  #
   verifier_id: "https://github.com/laurentsimon/slsa-policy/.github/workflows/verify-slsa.yml"
-  verifier_ref: "refs/heads/main"
-  sigstore_issuer: "https://token.actions.githubusercontent.com"
-  sigstore_rekor_url: "https://rekor.sigstore.dev"
+  verifier_sigstore_issuer: "https://token.actions.githubusercontent.com"
+  verifier_sigstore_rekor_url: "https://rekor.sigstore.dev"
