@@ -10,8 +10,10 @@ defaults:
     shell: bash
 
 env:
-  IMAGE_REGISTRY: ghcr.io
+  IMAGE_REGISTRY: docker.io
   IMAGE_NAME: ${{ github.repository }}-echo-server
+  REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+  REGISTRY_USERNAME: laurentsimon
 
 jobs:
   build:
@@ -32,9 +34,12 @@ jobs:
       - name: Authenticate Docker
         uses: docker/login-action@49ed152c8eca782a232dede0303416e8f356c37b # v2.0.0
         with:
+          # Use docker to simpliy local testing.
           registry: ${{ env.IMAGE_REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ env.REGISTRY_USERNAME }}
+          password: ${{ env.REGISTRY_PASSWORD }}
+          # username: ${{ github.actor }}
+          # password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
