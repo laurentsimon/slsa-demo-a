@@ -72,7 +72,8 @@ jobs:
     with:
       image: ${{ needs.build.outputs.image }}
       digest: ${{ needs.build.outputs.digest }}
-      registry-username: ${{ env.REGISTRY_USERNAME }}
+      # Use name rather than env variable because env are not available for reusable workflows.
+      registry-username: laurentsimon
       #registry-username: ${{ github.actor }}
     secrets:
       registry-password: ${{ env.REGISTRY_PASSWORD }}
