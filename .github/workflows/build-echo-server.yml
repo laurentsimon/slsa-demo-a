@@ -12,7 +12,6 @@ defaults:
 env:
   IMAGE_REGISTRY: docker.io
   IMAGE_NAME: ${{ github.repository }}-echo-server
-  REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
   REGISTRY_USERNAME: laurentsimon
 
 jobs:
@@ -37,7 +36,7 @@ jobs:
           # Use docker to simpliy local testing.
           registry: ${{ env.IMAGE_REGISTRY }}
           username: ${{ env.REGISTRY_USERNAME }}
-          password: ${{ env.REGISTRY_PASSWORD }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
           # username: ${{ github.actor }}
           # password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -76,7 +75,7 @@ jobs:
       registry-username: laurentsimon
       #registry-username: ${{ github.actor }}
     secrets:
-      registry-password: ${{ env.REGISTRY_PASSWORD }}
+      registry-password: ${{ secrets.REGISTRY_PASSWORD }}
       #registry-password: ${{ secrets.GITHUB_TOKEN }}
 
   run:
@@ -89,7 +88,7 @@ jobs:
         # Use docker to simpliy local testing.
           registry: ${{ env.IMAGE_REGISTRY }}
           username: ${{ env.REGISTRY_USERNAME }}
-          password: ${{ env.REGISTRY_PASSWORD }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
           # username: ${{ github.actor }}
           # password: ${{ secrets.GITHUB_TOKEN }}
       - name: Run it
