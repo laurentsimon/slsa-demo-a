@@ -78,8 +78,24 @@ jobs:
       registry-password: ${{ secrets.REGISTRY_PASSWORD }}
       #registry-password: ${{ secrets.GITHUB_TOKEN }}
 
-  run:
+  release:
     needs: [build, provenance]
+    permissions:
+      actions: read # for detecting the Github Actions environment.
+      id-token: write # for creating OIDC tokens for signing.
+    uses: laurentsimon/slsa-org/.github/workflows/image-releaser.yml@main
+    with:
+      image: ${{ needs.build.outputs.image }}
+      digest: ${{ needs.build.outputs.digest }}
+      # Use name rather than env variable because env are not available for reusable workflows.
+      registry-username: laurentsimon
+      #registry-username: ${{ github.actor }}
+    secrets:
+      registry-password: ${{ secrets.REGISTRY_PASSWORD }}
+      #registry-password: ${{ secrets.GITHUB_TOKEN }}
+
+  run:
+    needs: [build, provenance, release]
     runs-on: ubuntu-latest
     steps:
       - name: Authenticate Docker
