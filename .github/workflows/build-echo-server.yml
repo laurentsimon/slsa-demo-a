@@ -81,8 +81,9 @@ jobs:
   release:
     needs: [build, provenance]
     permissions:
-      actions: read # for detecting the Github Actions environment.
       id-token: write # for creating OIDC tokens for signing.
+      packages: write # for uploading attestations.
+      contents: read # To read the repo.
     uses: laurentsimon/slsa-org/.github/workflows/image-releaser.yml@main
     with:
       image: ${{ needs.build.outputs.image }}
