@@ -2,6 +2,13 @@ name: Build echo-server
 
 on:
   workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: Environment to use
+        options: 
+        - prod
+        - dev
 
 permissions: read-all
 
@@ -86,6 +93,7 @@ jobs:
       contents: read # To read the repo.
     uses: laurentsimon/slsa-org/.github/workflows/image-releaser.yml@main
     with:
+      environment: ${{ inputs.environment }}
       image: ${{ needs.build.outputs.image }}
       digest: ${{ needs.build.outputs.digest }}
       # Use name rather than env variable because env are not available for reusable workflows.
