@@ -11,12 +11,6 @@ on:
         description: "The OCI image digest. The image digest of the form '<algorithm>:<digest>' (e.g. 'sha256:abcdef...')"
         type: string
         default: "sha256:4378b3d11e11ede0f64946e588c590e460e44f90c8a7921ad2cb7b04aaf298d4"
-      environment:
-        type: choice
-        description: Environment to use
-        options: 
-        - prod
-        - dev
 
 permissions: read-all
 
@@ -38,7 +32,6 @@ jobs:
     uses: laurentsimon/slsa-org/.github/workflows/image-deployer.yml@main
     with:
       policy-id: servers-dev.json
-      environment: ${{ inputs.environment }}
       image: ${{ inputs.image }}
       digest: ${{ inputs.digest }}
       # Use name rather than env variable because env are not available for reusable workflows.
