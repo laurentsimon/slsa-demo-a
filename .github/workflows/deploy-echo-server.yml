@@ -37,6 +37,7 @@ jobs:
       contents: read # To read the repo.
     uses: laurentsimon/slsa-org/.github/workflows/image-deployer.yml@main
     with:
+      policy-id: servers-dev.json
       environment: ${{ inputs.environment }}
       image: ${{ inputs.image }}
       digest: ${{ inputs.digest }}
