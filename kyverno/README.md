@@ -25,6 +25,7 @@ Insall cosign v2.1.1: `go install github.com/sigstore/cosign/v2/cmd/cosign@v2.1.
 
 Check compatibilty with k8 version https://kyverno.io/docs/installation/
 
+NOTE: --dumpPayload=true and --v=6 for kyverno-admission-controller to have verbose logs. (see troubleshooting)
 kubectl create -f https://github.com/kyverno/kyverno/releases/download/v1.10.0/install.yaml
 
 Requires 1.24 < k8 < 1.26

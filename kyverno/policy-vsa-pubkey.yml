@@ -31,7 +31,7 @@ spec:
         - imageReferences:
             - "*"
           attestations:
-            - predicateType: "https://slsa.dev/deploy/v1?draft1"
+            - predicateType: "https://slsa.dev/deploy/v1?namespace"
               attestors:
               - entries:
                 # - keyless:
@@ -50,7 +50,7 @@ spec:
                               MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEhKJsOh7B3CjEVpQb+PHhmujiSoIw
                               AEiqzqoL/FzI6S4EBt8phXqlcNmOdTAITEP/eZGEDUIieIIjsV/6wSgzpQ==
                               -----END PUBLIC KEY-----
-                      
+              
               conditions:
                 - all:
                   # Compulsory: verify the result.
@@ -76,6 +76,24 @@ spec:
                     operator: Equals
                     value: "{{ team.data.uri }}"
                     message: "expected {{ team.data.uri }}, got {{ policy.uri }}"
+
+                  # Verify labels.
+                  # Common labels https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+                  - key: "{{ regex_match('.*{{ k8.labels || '' }}.*', '{{ team.data.labels || '*' }}'"
+                    operator: Equals
+                    value: "{{ team.data.labels }}"
+                    message: "expected {{ team.data.labels || '(any)' }} to contain {{ k8.labels || '(null)' }}"
+
+                  # Optional. Verify attestation namespace with policy namespace.
+                  # WARNING: This does not work with multiple teams. We need to define
+                  # one ClusterPolicy per team as well, and pre-condition based on the namespace, if defined.
+                  - key: "{{ k8.namespace || '' }}"
+                    operator: Equals
+                    value: "{{ team.data.namespace || '*' }}"
+                    message: "expected {{ team.data.namespace || '(any)' }}, got {{ k8.namespace || '(null)' }}"
+
+                 
+                  #items(
 
                   # Optional: Verify policy version.
                   - key: "{{ policy.version || '' }}"

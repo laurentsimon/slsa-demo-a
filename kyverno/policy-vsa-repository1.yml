@@ -16,3 +16,8 @@ data:
   #                        Use https://kyverno.io/docs/writing-policies/jmespath/#semver_compare if needed.
   #
   uri: "git+https://github.com/laurentsimon/slsa-demo-a/.slsa/policy-prod.json"
+  namespace: default
+  # below not working.
+  labels: |-
+    "env":"prod",
+    "other.key2":"value2"

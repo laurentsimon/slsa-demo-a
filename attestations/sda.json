@@ -13,6 +13,12 @@
     "gitCommit": "abcde",
     "version": "v1"
   },
+  "k8": {
+    "namespace": "default",
+    "labels": {
+      "env": "prod"
+    }
+  },
   "resourceUri": "index.docker.io/laurentsimon/slsa-demo-a-echo-server",
   "time_verified": "Wed Sep 20 02:18:52 UTC 2023",
   "deployResult": "ALLOW",
