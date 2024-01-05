@@ -79,7 +79,7 @@ jobs:
       #registry-password: ${{ secrets.GITHUB_TOKEN }}
 
   run:
-    needs: [build, provenance, release]
+    needs: [build, provenance]
     runs-on: ubuntu-latest
     steps:
       - name: Authenticate Docker
