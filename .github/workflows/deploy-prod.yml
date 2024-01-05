@@ -14,13 +14,13 @@ on:
       policy-id:
         description: "Policy ID for the service account we want to deploy on."
         type: string
-        default: "servers-dev.json"
+        default: "servers-staging.json"
       environment:
         type: choice
         description: Environment to use
         options: 
-        - prod
         - staging
+        - prod
 
 permissions: read-all
 
