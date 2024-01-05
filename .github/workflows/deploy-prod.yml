@@ -1,53 +1,72 @@
-name: Deploy prod hello world
+name: Deploy image
 
 on:
   workflow_dispatch:
     inputs:
       image:
+        description: "The OCI image name. This must not include a tag or digest."
         type: string
-        description: name of the image
-        require: true
+        default: "docker.io/laurentsimon/slsa-project-echo-server"
       digest:
-        required: true
+        description: "The OCI image digest. The image digest of the form '<algorithm>:<digest>' (e.g. 'sha256:abcdef...')"
         type: string
-        description: digest sha256:xxx
+        default: "sha256:bf4992d5bb89de77779de32f919f72a1592581ce356209784b79667f8a18aae0"
+      policy-id:
+        description: "Policy ID for the service account we want to deploy on."
+        type: string
+        default: "servers-dev.json"
+      environment:
+        type: choice
+        description: Environment to use
+        options: 
+        - prod
+        - staging
 
-permissions:
-  contents: read
+permissions: read-all
 
 defaults:
   run:
     shell: bash
 
 env:
-  IMAGE_REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_REGISTRY: docker.io
+  IMAGE_NAME: ${{ github.repository }}-echo-server
+  REGISTRY_USERNAME: laurentsimon
 
 jobs:
-  gate:
+  # NOTE: for containers that we want external teams to run, we may release independently _before_ we deploy ourselves.
+  # This just means seperating the release and deploy jobs in seperate workflows.
+  release:
     permissions:
       id-token: write # for creating OIDC tokens for signing.
       packages: write # for uploading attestations.
-      contents: read
-    #uses: laurentsimon/slsa-policy/.github/workflows/verify-slsa.yml@v0.0.1
-    uses: laurentsimon/slsa-policy/.github/workflows/verify-slsa.yml@main
+      contents: read # To read the repo.
+    uses: laurentsimon/slsa-org/.github/workflows/image-releaser.yml@main
     with:
+      environment: ${{ inputs.environment }}
+      image: ${{ needs.build.outputs.image }}
+      digest: ${{ needs.build.outputs.digest }}
+      # Use name rather than env variable because env are not available for reusable workflows.
+      registry-username: laurentsimon
+      #registry-username: ${{ github.actor }}
+    secrets:
+      registry-password: ${{ secrets.REGISTRY_PASSWORD }}
+      #registry-password: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy:
+    needs: [release]
+    permissions:
+      id-token: write # for creating OIDC tokens for signing.
+      packages: write # for uploading attestations.
+      contents: read # To read the repo.
+    uses: laurentsimon/slsa-org/.github/workflows/image-deployer.yml@main
+    with:
+      policy-id: ${{ inputs.policy-id }}
       image: ${{ inputs.image }}
       digest: ${{ inputs.digest }}
-      registry-username: ${{ github.actor }}
-      policy-path: .slsa/policy-prod.json
+      # Use name rather than env variable because env are not available for reusable workflows.
+      registry-username: laurentsimon
+      #registry-username: ${{ github.actor }}
     secrets:
-      registry-password: ${{ secrets.GITHUB_TOKEN }}
-
-  result:
-    needs: [gate]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Run it
-        env:
-          OUTCOME: ${{ needs.gate.outputs.outcome }}
-          IMAGE: ${{ inputs.image }}
-          DIGEST: ${{ inputs.digest }}
-        run: |
-          echo "${IMAGE}@${DIGEST}:"
-          echo "> ${OUTCOME}"
+      registry-password: ${{ secrets.REGISTRY_PASSWORD }}
+      #registry-password: ${{ secrets.GITHUB_TOKEN }}
