@@ -1,4 +1,4 @@
-name: Deploy echo-server
+name: Deploy image
 
 on:
   workflow_dispatch:
@@ -11,6 +11,16 @@ on:
         description: "The OCI image digest. The image digest of the form '<algorithm>:<digest>' (e.g. 'sha256:abcdef...')"
         type: string
         default: "sha256:bf4992d5bb89de77779de32f919f72a1592581ce356209784b79667f8a18aae0"
+      policy-id:
+        description: "Policy ID for the service account we want to deploy on."
+        type: string
+        default: "servers-dev.json"
+      environment:
+        type: choice
+        description: Environment to use
+        options: 
+        - prod
+        - staging
 
 permissions: read-all
 
@@ -24,14 +34,34 @@ env:
   REGISTRY_USERNAME: laurentsimon
 
 jobs:
+  # NOTE: for containers that we want external teams to run, we may release befoer we deploy ourselves
+  # to make the container available.
+  release:
+    permissions:
+      id-token: write # for creating OIDC tokens for signing.
+      packages: write # for uploading attestations.
+      contents: read # To read the repo.
+    uses: laurentsimon/slsa-org/.github/workflows/image-releaser.yml@main
+    with:
+      environment: ${{ inputs.environment }}
+      image: ${{ needs.build.outputs.image }}
+      digest: ${{ needs.build.outputs.digest }}
+      # Use name rather than env variable because env are not available for reusable workflows.
+      registry-username: laurentsimon
+      #registry-username: ${{ github.actor }}
+    secrets:
+      registry-password: ${{ secrets.REGISTRY_PASSWORD }}
+      #registry-password: ${{ secrets.GITHUB_TOKEN }}
+
   deploy:
+    needs: [release]
     permissions:
       id-token: write # for creating OIDC tokens for signing.
       packages: write # for uploading attestations.
       contents: read # To read the repo.
     uses: laurentsimon/slsa-org/.github/workflows/image-deployer.yml@main
     with:
-      policy-id: servers-dev.json
+      policy-id: ${{ inputs.policy-id }}
       image: ${{ inputs.image }}
       digest: ${{ inputs.digest }}
       # Use name rather than env variable because env are not available for reusable workflows.
