@@ -2,13 +2,6 @@ name: Build echo-server
 
 on:
   workflow_dispatch:
-    # inputs:
-    #   environment:
-    #     type: choice
-    #     description: Environment to use
-    #     options: 
-    #     - prod
-    #     - dev
 
 permissions: read-all
 
